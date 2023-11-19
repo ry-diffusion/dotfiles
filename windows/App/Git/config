@@ -39,3 +39,5 @@
 	autoSetupRemote = true
 [pull]
 	ff = true
+[gpg]
+	program = \\Users\\Zooltarak\\scoop\\apps\\gpg4win\\current\\Gpg4win\\..\\GnuPG\\bin\\gpg.exe
