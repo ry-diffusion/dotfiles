@@ -4,7 +4,6 @@ from os import symlink, system, unlink
 from .utils import backup_and_remove
 from .store import STORE
 
-
 class Injectable:
     id: str
 
