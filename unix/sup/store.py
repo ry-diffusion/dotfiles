@@ -2,7 +2,7 @@ from os.path import exists, expanduser, realpath
 from json import dump, load as load_json
 
 STORE_VERSION = 1
-STORE_PATH = realpath(expanduser("~/.local/share/sup_store.json"))
+STORE_PATH = realpath(expanduser("~/.sup_store.json"))
 
 
 class StoreState:

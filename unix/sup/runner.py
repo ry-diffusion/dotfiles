@@ -1,11 +1,11 @@
-from config import MODULES
+from config import PROFILES 
 from .utils import confirm
 from .store import STORE_PATH, load, save
 from .core import AlreadyInstalled, Injectable, NotInstalled, UserRefused
 from atexit import register
 from sys import argv
 
-MODULES: list[Injectable] = MODULES
+PROFILES: dict[str, list[Injectable]]= PROFILES 
 
 load()
 register(save)
@@ -13,8 +13,8 @@ register(save)
 print(f"[@] using store at {STORE_PATH}")
 
 
-def dump():
-    for module in MODULES:
+def dump(modules: list[Injectable]):
+    for module in modules:
         print(
             f"--> {module.id}:\n -> installed? {module.installed()}\n -> exists in system? {module.exists_in_system()}"
         )
@@ -54,22 +54,29 @@ def uninstall_module(module: Injectable):
         print(" -> not installed, nothing to do.")
 
 
-def install():
-    for module in MODULES:
+def install(modules: list[Injectable]):
+    for module in modules:
         install_module(module)
 
 
-def uninstall():
-    for module in MODULES:
+def uninstall(modules: list[Injectable]):
+    for module in modules:
         uninstall_module(module)
 
 
 if __name__ == "__main__":
-    [action] = argv[1:]
+    [action, profile] = argv[1:]
+
+    if profile not in PROFILES:
+        print(f'error: unknown profile {profile}')
+        exit(1)
+
+    modules = PROFILES[profile]
+
     match action:
         case "dump":
-            dump()
+            dump(modules)
         case "install":
-            install()
+            install(modules)
         case "uninstall":
-            uninstall()
+            uninstall(modules)
