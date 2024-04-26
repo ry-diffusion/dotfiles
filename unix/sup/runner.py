@@ -1,11 +1,11 @@
-from config import PROFILES 
+from config import PROFILES
 from .utils import confirm
 from .store import STORE_PATH, load, save
 from .core import AlreadyInstalled, Injectable, NotInstalled, UserRefused
 from atexit import register
 from sys import argv
 
-PROFILES: dict[str, list[Injectable]]= PROFILES 
+PROFILES: dict[str, list[Injectable]] = PROFILES
 
 load()
 register(save)
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     [action, profile] = argv[1:]
 
     if profile not in PROFILES:
-        print(f'error: unknown profile {profile}')
+        print(f"error: unknown profile {profile}")
         exit(1)
 
     modules = PROFILES[profile]
