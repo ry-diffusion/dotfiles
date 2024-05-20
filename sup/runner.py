@@ -1,7 +1,9 @@
 from config import PROFILES
 from .utils import confirm
 from .store import STORE_PATH, load, save
-from .core import AlreadyInstalled, Injectable, NotInstalled, UserRefused
+from .error import FailedToRunCommand, CantUninstall, AlreadyInstalled, UserRefused, NotInstalled
+from .core import Injectable
+
 from atexit import register
 from sys import argv
 
@@ -37,6 +39,8 @@ def install_module(module: Injectable):
     try:
         module.install()
         print(" -> installed!")
+    except FailedToRunCommand:
+        print("!> failed to run the command.")
     except AlreadyInstalled:
         print(" => already installed, no more actions required.")
     except UserRefused:
@@ -44,14 +48,20 @@ def install_module(module: Injectable):
 
 
 def uninstall_module(module: Injectable):
-    print(f"= ({module.id}): ")
+    uninstallable = True
     try:
         module.uninstall()
-        print(" => uninstalled! cya.")
+    except CantUninstall:
+        uninstallable = False
     except UserRefused:
         print(" !> unable to install: user refused to uninstall!")
     except NotInstalled:
         print(" -> not installed, nothing to do.")
+
+    if uninstallable:
+        print(f"= ({module.id}): ")
+        print(" => uninstalled! cya.")
+
 
 
 def install(modules: list[Injectable]):
@@ -65,6 +75,10 @@ def uninstall(modules: list[Injectable]):
 
 
 if __name__ == "__main__":
+    if len(argv) < 3:
+        print('usage: install/dump/uninstall <PROFILE>')
+        exit(0)
+
     [action, profile] = argv[1:]
 
     if profile not in PROFILES:

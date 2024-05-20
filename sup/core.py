@@ -1,9 +1,9 @@
 from os.path import exists, expanduser, realpath, isdir
 from os import symlink, system, unlink
-
+from subprocess import run
 from .utils import backup_and_remove
 from .store import STORE
-
+from .error import FailedToRunCommand, CantUninstall, AlreadyInstalled, UserRefused, NotInstalled
 
 class Injectable:
     id: str
@@ -22,19 +22,6 @@ class Injectable:
 
     def backup_and_remove(self):
         pass
-
-
-class AlreadyInstalled(Exception):
-    pass
-
-
-class UserRefused(Exception):
-    pass
-
-
-class NotInstalled(Exception):
-    pass
-
 
 class Link(Injectable):
     source: str
@@ -108,3 +95,30 @@ class SudoCopy(Injectable):
             raise UserRefused()
 
         STORE.installed.remove(self.id)
+
+
+class Powershell(Injectable):
+    command: str
+    id: str
+
+    def __init__(self, command: str) -> None:
+        self.id = "powershell-command"
+        self.command = expanduser(command)
+
+    def installed(self) -> bool:
+        return False 
+
+    def exists_in_system(self) -> bool:
+        return False
+
+    def install(self):
+        if self.id in STORE.installed:
+            raise AlreadyInstalled()
+
+        cmd = ["powershell", "-noni", "-nop", "-c", self.command]
+        print(f"$ {' '.join(cmd)}")
+        if run(cmd).returncode != 0:
+            raise FailedToRunCommand()
+
+    def uninstall(self):
+        raise CantUninstall()

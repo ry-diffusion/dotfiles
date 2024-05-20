@@ -37,7 +37,10 @@
 	gpgSign = false
 	default = tracking
 	autoSetupRemote = true
+
 [pull]
 	ff = true
 [gpg]
-	program = \\Users\\Zooltarak\\scoop\\apps\\gpg4win\\current\\Gpg4win\\..\\GnuPG\\bin\\gpg.exe
+	program = C:\\Users\\Ryster\\scoop\\apps\\gpg4win\\current\\Gpg4win\\..\\GnuPG\\bin\\gpg.exe
+[credential "helperselector"]
+	selected = manager
