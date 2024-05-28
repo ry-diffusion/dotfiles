@@ -1,0 +1,1 @@
+/home/evellyn/.asdf/completions/asdf.fish
