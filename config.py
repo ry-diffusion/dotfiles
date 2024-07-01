@@ -8,7 +8,7 @@ PROFILES = {
         Link("helix", "confs/helix", "~/.config/helix"),
         Link("git", "confs/gitconfig", "~/.gitconfig"),
     ],
-    "pop_os": [
+    "archLinux": [
         Link("neovim", "confs/neovim", "~/.config/nvim"),
         Link("fish", "confs/fish", "~/.config/fish"),
         Link("helix", "confs/helix", "~/.config/helix"),
