@@ -1,5 +1,5 @@
 from os.path import exists, expanduser, realpath, isdir
-from os import symlink, system, unlink
+from os import symlink, system, unlink, makedirs
 from subprocess import run
 from .utils import backup_and_remove
 from .store import STORE
@@ -121,4 +121,59 @@ class Powershell(Injectable):
             raise FailedToRunCommand()
 
     def uninstall(self):
-        raise CantUninstall()
+        raise CantUninstall
+    
+
+class InstallPwshProfile(Injectable):
+    sourcePath: str
+    id: str
+
+    def get_profile_path(self):
+        command = "pwsh -Command $PROFILE"
+        result = run(command, capture_output=True, text=True, shell=True)
+
+        return result.stdout.strip()
+
+    def __init__(self, id: str, target: str) -> None:
+        self.id = id
+        self.sourcePath = realpath(expanduser(target))
+
+
+    def exists_in_system(self) -> bool:
+        return exists(self.sourcePath)
+
+    def installed(self) -> bool:
+        return self.id in STORE.installed
+
+
+    def install(self):
+        if self.id in STORE.installed:
+            raise AlreadyInstalled()
+        
+        symlink(self.sourcePath, self.get_profile_path())
+        STORE.installed.append(self.id)
+
+    def uninstall(self):
+        unlink(self.sourcePath)
+
+class EnsureDirectory(Injectable):
+    def __init__(self, path: str) -> None:
+        self.path = realpath(expanduser(path))
+        self.id = "ensure-directory"
+
+    def exists_in_system(self) -> bool:
+        return False
+
+    def installed(self) -> bool:
+        return False
+    
+    def install(self):
+        if self.id in STORE.installed:
+            raise AlreadyInstalled()
+
+        if not isdir(self.path):
+            makedirs(self.path)        
+
+        STORE.installed.append(self.id)
+
+    
