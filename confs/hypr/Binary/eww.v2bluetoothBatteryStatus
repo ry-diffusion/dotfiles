@@ -1,0 +1,31 @@
+#!/bin/bash
+level=
+
+processOutput() {
+  values=($@)
+  name="${values[@]:1}"
+  level="${values[0]}"
+
+  if test -z "$level"
+  then
+    return
+  fi
+
+  echo "{ \"status\": \"Connected\", \"level\": $level, \"name\": \"$name\"}"
+}
+
+getBatteryLevel() {
+  upower -d | awk '/headset/{ print $2 }' | xargs upower -i"$@" | grep -E '(percentage|mode)' | tr -s ' ' | cut -d ' ' -f 3- | cut -d % -f 1 | tac | xargs -0
+}
+
+while :
+do
+  processOutput "$(getBatteryLevel)"
+
+  if test -z "$level"
+  then
+    echo '{ "status": "Disconnected", "level": 0, "name": "" }'
+  fi
+  
+  sleep 5
+done

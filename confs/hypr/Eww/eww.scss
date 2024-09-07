@@ -1,0 +1,150 @@
+* {
+  all: unset;
+  color: #f2f4f8;
+  font-family: "Symbols Nerd Font Mono", "Iosevka SS14";
+}
+
+$accentColor: #de5e35;
+
+window {
+  background-color: #161616;
+  border-radius: 12px;
+}
+
+.time {
+  font-size: 16px;
+}
+
+.launcher {
+  background-color: $accentColor;
+  margin: 5px;
+  margin-top: 7px;
+  border-radius: 2cm;
+  padding: 8px;
+}
+
+.workspace {
+  padding: 5px;
+}
+
+.focused {
+  /* background-color: #202020; */
+  > label {
+    border: 5px solid;
+    background-color: $accentColor;
+    border-radius: 35cm;
+    border-color: $accentColor;
+  }
+}
+
+.workspaces {
+  padding-top: 2px;
+}
+
+.clock {
+  padding-bottom: 5px;
+}
+
+.statuses {
+  padding-bottom: 10px;
+}
+
+.indicator {
+  margin: 5px;
+  > progressbar {
+    margin-top: 5px;
+  }
+}
+
+.prog {
+  min-width: 5px;
+  margin: 1px 1em;
+
+  > trough {
+    min-width: 15px;
+    background-color: #282828;
+    min-height: 1.9px;
+
+    & > progress {
+      min-height: 1.9px;
+
+      border-radius: 15px;
+      background-color: #bdbdbd;
+    }
+  }
+}
+
+.media {
+  > label {
+    color: #e64553;
+  }
+
+  > progressbar > trough > progress {
+    background-color: #e64553;
+  }
+}
+
+.bright {
+  > label {
+    color: #e5c890;
+  }
+
+  > progressbar > trough > progress {
+    background-color: #e5c890;
+  }
+}
+
+.bluetooth {
+  > label {
+    color: #2dc7c4;
+  }
+
+  > progressbar > trough > progress {
+    background-color: #2dc7c4;
+  }
+}
+
+.pipewire {
+  > label {
+    color: #a6d189;
+  }
+
+  > progressbar > trough > progress {
+    background-color: #a6d189;
+  }
+}
+
+tooltip {
+  //padding: 5px 5px 5px 5px;
+  margin: 5px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 8px;
+  border-color: #282828;
+  background-image: none;
+  background-color: #161616;
+}
+
+.warning {
+  color: #2dc7c4;
+}
+
+.warning {
+  > label {
+    color: #ffa726;
+  }
+
+  progressbar > trough > progress {
+    background-color: #ffa726;
+  }
+}
+
+.inactive {
+  > label {
+    color: #404040;
+  }
+
+  > progressbar > trough > progress {
+    background-color: #404040;
+  }
+}

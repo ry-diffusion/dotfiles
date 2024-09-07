@@ -1,0 +1,43 @@
+#!/bin/bash
+
+send_disconnected() {
+  echo '{ "status": "Disconnected", "level": 0, "name": null }'
+}
+
+processOutput() {
+  values=($@)
+  name="${values[@]:1}"
+  level="${values[0]}"
+
+  if test -z "$level"; then
+    return
+  fi
+
+  echo "{ \"status\": \"Connected\", \"level\": $level, \"name\": \"$name\"}"
+}
+
+getBatteryLevel() {
+  device=$(bluetoothctl devices | cut -f 2 -d' ')
+  name=$(bluetoothctl devices | cut -f 3- -d' ')
+  if test -z "$device"; then
+    return
+  fi
+  battery=$(python3 ~/.config/hypr/Binary/bluetooth_battery.py $device | cut -f 5 -d ' ' | cut -f '1' -d '%')
+  echo "$battery $name"
+}
+
+while :; do
+  bluetoothctl info &>/dev/null || {
+    send_disconnected
+    sleep 5
+    continue
+  }
+
+  processOutput "$(getBatteryLevel)"
+
+  if test -z "$level"; then
+    send_disconnected
+  fi
+
+  sleep 5
+done

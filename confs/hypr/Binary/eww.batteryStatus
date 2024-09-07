@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+if not test -f /sys/class/power_supply/BAT0/capacity; then
+  while true; do
+    echo "{\"level\":0,\"icon\":\"\",\"state\":\"Charging\"}"
+    sleep 5
+  done
+fi
+
+getbat() {
+  level=$(</sys/class/power_supply/BAT0/capacity)
+  state=$(</sys/class/power_supply/BAT0/status)
+}
+
+format_icon() {
+  p=$1
+
+  case 1 in
+  $((p <= 10))) echo "󰁺" ;;
+  $((p <= 20))) echo "󰁻" ;;
+  $((p <= 30))) echo "󰁼" ;;
+  $((p <= 40))) echo "󰁽" ;;
+  $((p <= 50))) echo "󰁾" ;;
+  $((p <= 60))) echo "󰁿" ;;
+  $((p <= 70))) echo "󰂀" ;;
+  $((p <= 80))) echo "󰂁" ;;
+  $((p <= 90))) echo "󰂂" ;;
+  $((p <= 100))) echo "󰁹" ;;
+  *) echo "?" ;;
+  esac
+}
+
+display() {
+  i() {
+    echo "\"$1\":\"$(eval $(echo echo \$$1))\""
+  }
+
+  d() {
+    echo "\"$1\":$(eval $(echo echo \$$1))"
+  }
+  echo "{$(d level),$(i icon),$(i state)}"
+}
+
+getbat
+icon=$(format_icon $level)
+display
+
+while read -r _; do
+  getbat
+  if [ "$state" = "Discharging" ]; then
+    icon=$(format_icon $level)
+  else
+    icon="󰂄"
+  fi
+  display
+done < <(upower -i /org/freedesktop/UPower/devices/battery_BAT0 -m)

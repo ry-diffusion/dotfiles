@@ -1,0 +1,25 @@
+#!/bin/bash
+
+sent=false
+
+while :
+do
+  sent=false
+
+  while read percentage; do
+    echo "{ \"status\": \"Connected\", \"level\": $percentage }"
+    sent=true    
+  done < <(upower -d | awk '/headset/{ print $2 }' | xargs upower -i | awk '/percentage/{ print $2 }' | cut -d % -f 1)
+
+
+    percentage=$(bluetoothctl info | awk '/Battery/{ print $3 }')
+
+    if ! test -z "$percentage"
+    then
+      [ $sent = "false" ] && echo "{ \"status\": \"Connected\", \"level\": $percentage }"
+    else
+      echo '{ "status": "Disconnected", "level": 0 }'
+    fi
+  
+  sleep 5
+done

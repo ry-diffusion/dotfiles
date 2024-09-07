@@ -1,0 +1,1 @@
+exec date +'{"hour": "%I", "minute": "%M", "m": "%p"}'

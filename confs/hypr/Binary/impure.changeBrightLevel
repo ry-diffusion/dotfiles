@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+case "$1" in
+  up) brightnessctl s 5%+ ;;
+  down) brightnessctl s 5%- ;;
+esac

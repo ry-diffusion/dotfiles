@@ -1,0 +1,6 @@
+#!/bin/bash
+set -eux
+
+pgrep -x wofi && exit
+exec wofi --show drun -I -p "Run: "
+

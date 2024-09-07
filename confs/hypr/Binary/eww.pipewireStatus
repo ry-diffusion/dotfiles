@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+getvol() {
+	vol=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2*100)}')
+}
+
+format_icon() {
+	p=$1
+
+	case 1 in
+	$((p == 0))) echo "󰖁" ;;
+	$((p <= 10))) echo "󰕿" ;;
+	$((p <= 20))) echo "󰖀" ;;
+	$((p <= 50))) echo "󰖀" ;;
+	$((p <= 100))) echo "󰕾" ;;
+	*) echo "?" ;;
+	esac
+}
+
+getvol
+echo "{ \"icon\": \"$(format_icon $vol)\", \"value\": $vol }"
+
+while read -r _; do
+	getvol
+	echo "{ \"icon\": \"$(format_icon $vol)\", \"value\": $vol }"
+done < <(pactl subscribe | grep --line-buffered "sink")
