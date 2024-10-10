@@ -13,6 +13,10 @@ while IFS=$ips read -r -a metadata; do
   artUrl=${metadata[5]:-$artUrl}
   status=${metadata[6]:-$status}
 
+  if [ "${length:-0}" -le "$position" ]; then
+    length=$(($position + 200000))
+  fi
+
   i() {
     echo "\"$1\":\"$(eval $(echo echo \$$1))\""
   }

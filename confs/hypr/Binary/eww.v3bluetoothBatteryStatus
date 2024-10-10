@@ -17,8 +17,8 @@ processOutput() {
 }
 
 getBatteryLevel() {
-  device=$(bluetoothctl devices | cut -f 2 -d' ')
-  name=$(bluetoothctl devices | cut -f 3- -d' ')
+  device=$(bluetoothctl info | cut -d' ' -f 2 | head -n1)
+  name=$(bluetoothctl devices | grep $device | cut -f 3- -d' ')
   if test -z "$device"; then
     return
   fi

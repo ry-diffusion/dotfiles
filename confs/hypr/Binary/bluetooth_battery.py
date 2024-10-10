@@ -15,6 +15,7 @@ from typing import Optional, Union, List, Dict
 
 logger = logging.getLogger(__name__)
 
+
 class BatteryQueryError(bluetooth.BluetoothError):
     pass
 
@@ -39,7 +40,6 @@ class SocketDataIterator:
 
 
 class RFCOMMSocket(bluetooth.BluetoothSocket):
-
     def __init__(self, proto=bluetooth.RFCOMM, _sock=None):
         super().__init__(proto, _sock)
 
@@ -50,7 +50,9 @@ class RFCOMMSocket(bluetooth.BluetoothSocket):
         return SocketDataIterator(self)
 
     @staticmethod
-    def find_rfcomm_port(device_mac, uuid = "0000111e-0000-1000-8000-00805f9b34fb") -> int:
+    def find_rfcomm_port(
+        device_mac, uuid="0000111e-0000-1000-8000-00805f9b34fb"
+    ) -> int:
         """
         Find the RFCOMM port number for a given bluetooth device
         """
@@ -60,7 +62,9 @@ class RFCOMMSocket(bluetooth.BluetoothSocket):
             if "protocol" in service.keys() and service["protocol"] == "RFCOMM":
                 return service["port"]
         # Raise Interface error when the required service is not offered my the end device
-        raise bluetooth.BluetoothError("Couldn't find the RFCOMM port number. Perhaps the device is offline?")
+        raise bluetooth.BluetoothError(
+            "Couldn't find the RFCOMM port number. Perhaps the device is offline?"
+        )
 
     def send(self, data):
         """
@@ -71,8 +75,9 @@ class RFCOMMSocket(bluetooth.BluetoothSocket):
 
 
 class BatteryStateQuerier:
-
-    def __init__(self, bluetooth_mac: str, bluetooth_port: Optional[Union[str, int]] = None):
+    def __init__(
+        self, bluetooth_mac: str, bluetooth_port: Optional[Union[str, int]] = None
+    ):
         """
         Prepare a query for the end devices' battery state
 
@@ -83,13 +88,17 @@ class BatteryStateQuerier:
         The actual query can be performed using the int() and str() method.
         """
         self._bluetooth_mac = bluetooth_mac
-        self._bluetooth_port = int(bluetooth_port or RFCOMMSocket.find_rfcomm_port(bluetooth_mac))
+        self._bluetooth_port = int(
+            bluetooth_port or RFCOMMSocket.find_rfcomm_port(bluetooth_mac)
+        )
 
         # Only try to use Nearby/Fast Pair protocol if port is not specified
-        self._use_fastpair = (bluetooth_port == None)
+        self._use_fastpair = bluetooth_port == None
         if self._use_fastpair:
             try:
-                self._fastpair_port = RFCOMMSocket.find_rfcomm_port(bluetooth_mac, "df21fe2c-2515-4fdb-8886-f12c4d67927c")
+                self._fastpair_port = RFCOMMSocket.find_rfcomm_port(
+                    bluetooth_mac, "df21fe2c-2515-4fdb-8886-f12c4d67927c"
+                )
             except bluetooth.BluetoothError:
                 logger.debug("No Nearby service on this device, disabling.")
                 self._use_fastpair = False
@@ -142,7 +151,11 @@ class BatteryStateQuerier:
         """
         result: dict[str, int] = {}
         sock = RFCOMMSocket()
-        logger.debug("Connecting to {}.{} (RFCOMM)".format(self._bluetooth_mac, self._bluetooth_port))
+        logger.debug(
+            "Connecting to {}.{} (RFCOMM)".format(
+                self._bluetooth_mac, self._bluetooth_port
+            )
+        )
         sock.connect((self._bluetooth_mac, self._bluetooth_port))
         logger.debug("Connected")
         # Iterate received packets until there is no more or a result was found
@@ -151,7 +164,9 @@ class BatteryStateQuerier:
                 sock.send(b"+BRSF: 1024")
                 sock.send(b"OK")
             elif b"CIND=" in line:
-                sock.send(b"+CIND:(\"service\",(0-1)),(\"call\",(0-1)),(\"callsetup\",(0-3)),(\"callheld\",(0-2)),(\"battchg\",(0-5))")
+                sock.send(
+                    b'+CIND:("service",(0-1)),("call",(0-1)),("callsetup",(0-3)),("callheld",(0-2)),("battchg",(0-5))'
+                )
                 sock.send(b"OK")
             elif b"CIND?" in line:
                 sock.send(b"+CIND: 0,0,0,0,3")
@@ -169,12 +184,12 @@ class BatteryStateQuerier:
                 sock.send(b"+XAPL=iPhone,7")
                 sock.send(b"OK")
             elif b"IPHONEACCEV" in line:
-                parts = line.strip().split(b',')[1:]
+                parts = line.strip().split(b",")[1:]
                 if len(parts) > 1 and (len(parts) % 2) == 0:
                     parts = iter(parts)
                     params = dict(zip(parts, parts))
-                    if b'1' in params:
-                        result["overall"] = (int(params[b'1']) + 1) * 10
+                    if b"1" in params:
+                        result["overall"] = (int(params[b"1"]) + 1) * 10
                         break
             elif b"BIEV=" in line:
                 params = line.strip().split(b"=")[1].split(b",")
@@ -202,7 +217,11 @@ class BatteryStateQuerier:
         """
         result: dict[str, int] = {}
         sock = RFCOMMSocket()
-        logger.debug("Connecting to {}.{} (Nearby/Fast Pair)".format(self._bluetooth_mac, self._fastpair_port))
+        logger.debug(
+            "Connecting to {}.{} (Nearby/Fast Pair)".format(
+                self._bluetooth_mac, self._fastpair_port
+            )
+        )
         sock.connect((self._bluetooth_mac, self._fastpair_port))
         logger.debug("Connected")
 
@@ -217,8 +236,12 @@ class BatteryStateQuerier:
                     group = data[0]
                     code = data[1]
                     length = int.from_bytes(data[2:4], "big")
-                    payload = data[4:4+length+1]
-                    logger.debug("Group: {}; Code: {}; Length: {}; Payload: {}".format(group, code, length, payload.hex()))
+                    payload = data[4 : 4 + length + 1]
+                    logger.debug(
+                        "Group: {}; Code: {}; Length: {}; Payload: {}".format(
+                            group, code, length, payload.hex()
+                        )
+                    )
 
                     # See https://github.com/google/nearby/blob/main/fastpair/message_stream/message.h
                     # DeviceInformationEvent group, BatteryUpdated code.
@@ -229,11 +252,11 @@ class BatteryStateQuerier:
                             # 0x11111111 charging, but not present/unknown battery level charging
                             # 0x01111111 not charging, but not present/unknown battery level
                             # 0 bit:    1 charging, 0 not charging
-                            # 1-7 bits: battery level 
-                            if (level & 0x7f) == 0x7f:
+                            # 1-7 bits: battery level
+                            if (level & 0x7F) == 0x7F:
                                 return None
                             # Top bit indicates if the device is charging
-                            return level & 0x7f
+                            return level & 0x7F
 
                         if len(payload) == 1:
                             result["overall"] = parse_level(payload[0])
@@ -242,21 +265,26 @@ class BatteryStateQuerier:
                             result["right"] = parse_level(payload[1])
                             result["case"] = parse_level(payload[2])
                         else:
-                            raise BatteryQueryError("Invalid number of data points in Fast Pair packet.")
+                            raise BatteryQueryError(
+                                "Invalid number of data points in Fast Pair packet."
+                            )
                         break
 
                     # Parse next packet
-                    data = data[4+length:]
+                    data = data[4 + length :]
                 if len(result) > 0:
                     break
 
             sock.close()
         except bluetooth.BluetoothError as e:
             # Fast Pair errors are not fatal.
-            logger.info("Bluetooth Error while reading Nearby/Fast Pair data: " + str(e))
+            logger.info(
+                "Bluetooth Error while reading Nearby/Fast Pair data: " + str(e)
+            )
             pass
         logger.debug("Nearby/Fast Pair query results: " + str(result))
         return result
+
 
 def main():
     """
@@ -264,10 +292,19 @@ def main():
     list a bluetooth socket will be opened and the battery level will be read
     and printed to stdout
     """
-    parser = argparse.ArgumentParser(description="Get battery level from Bluetooth headsets")
-    parser.add_argument("devices", metavar="DEVICE_MAC[.PORT]", type=str, nargs="+",
-                        help="(MAC address of target)[.SPP Port]")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logs")
+    parser = argparse.ArgumentParser(
+        description="Get battery level from Bluetooth headsets"
+    )
+    parser.add_argument(
+        "devices",
+        metavar="DEVICE_MAC[.PORT]",
+        type=str,
+        nargs="+",
+        help="(MAC address of target)[.SPP Port]",
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose logs"
+    )
     args = parser.parse_args()
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
@@ -276,10 +313,10 @@ def main():
         result = query.query()
         print("Battery level for {}:".format(device), end="")
         if "overall" in result:
-            print(" {:.0%}.".format(result["overall"]/100), end="")
+            print(" {:.0%}.".format(result["overall"] / 100), end="")
         for key, value in result.items():
             if key != "overall":
-                print(" {}: {:.0%}.".format(key.capitalize(), value/100), end="")
+                print(" {}: {:.0%}.".format(key.capitalize(), value / 100), end="")
         print("")
 
 
