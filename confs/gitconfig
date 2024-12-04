@@ -41,6 +41,6 @@
 [pull]
 	ff = true
 [gpg]
-	program = C:\\Users\\moize\\scoop\\apps\\gpg4win\\current\\Gpg4win\\..\\GnuPG\\bin\\gpg.exe
+	program = C:\\Users\\Ryster\\scoop\\apps\\gpg4win\\current\\GnuPG\\bin\\gpg.exe
 [credential "helperselector"]
 	selected = manager
