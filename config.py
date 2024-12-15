@@ -10,6 +10,11 @@ PROFILES = {
         Link("helix", "confs/helix", "~/.config/helix"),
         Link("git", "confs/gitconfig", "~/.gitconfig"),
     ],
+    
+    "termux": [
+        Link("git", "confs/gitconfig-termux", "~/.gitconfig")
+    ],
+
     "archLinux": [
         Link("neovim", "confs/neovim", "~/.config/nvim"),
         Link("fish", "confs/fish", "~/.config/fish"),
