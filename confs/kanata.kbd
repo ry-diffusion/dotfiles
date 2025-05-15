@@ -5,15 +5,11 @@
   esc
 )
 
-(defalias
-    bye A-f4
-) 
-
 (defalias 
  	escctrl (tap-hold 200 250 esc lctl))
 
 (defalias 
-  	usefulesc (tap-hold 100 200 caps @bye)
+  usefulesc (tap-hold 100 200 esc caps)
 )
 
 (deflayer base
